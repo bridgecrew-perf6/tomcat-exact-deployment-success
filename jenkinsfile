@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('git') {
+            steps {
+                git branch: 'main', credentialsId: 'git_credentials', url: 'https://github.com/raghavenderdevops/maven-java-project.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }   
+         stage('deploy') {
+            steps {
+                sshagent(['new_deploy']) {
+                sh "scp -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/python-deployment/target/mvn-hello-world.war ec2-user@65.2.80.114:/root/apache-tomcat-8.5.78/webapps"   
+            }
+        }
+    }
+}
+}
